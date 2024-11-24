@@ -14,20 +14,15 @@ import (
 
 func main() {
 	apiServer := api.NewApiServer(":8080")
-	apiServer.SetupRouter()
 
+	// Start server on a goroutine
 	go func() {
-		if err := apiServer.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := apiServer.Start(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Error during ListenAndServe:%s\n", err)
 		}
 	}()
 
-	go func() {
-		if err := api.LogUniqueRequests(); err != nil {
-			log.Fatalf("Error during TrackUniqueRequests")
-		}
-	}()
-
+	// Block until syscall signal is sent/notified to shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
@@ -35,9 +30,10 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := apiServer.Server.Shutdown(ctx); err != nil {
+	if err := apiServer.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
+
 	// catching ctx.Done(). timeout of 5 seconds.
 	select {
 	case <-ctx.Done():

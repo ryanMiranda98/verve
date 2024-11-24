@@ -6,18 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TrackRequestsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		id := c.Query("id")
+// TrackRequestsMiddleware checks for valid id in the request and updates the unique request
+// count in redis.
+func TrackRequestsMiddleware(server *ApiServer) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Query("id")
 		if id == "" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "failed",
 				"errors":  []string{"query parameter `id` missing"},
 			})
 			return
 		}
 
-		updateRequestTracking(id)
-		c.Next()
+		updateRequestTracking(server, ctx, id)
+		ctx.Next()
 	}
 }
