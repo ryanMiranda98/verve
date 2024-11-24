@@ -29,7 +29,11 @@ make compose-up
 
 2. Once the containers are running, you can view the API at localhost:8080/api/verve/accept?id=1 and view prometheus metrics at localhost:9090.
    <br>
-3. To perform a load test, you can run the load-test_script.js file using k6. This will send requests from 100k virtual users over a minute. The RPS (requests per second) differs based on the CPU cores available. This API has been tested on 2 machines:
+3. To perform a load test, you can run the load-test_script.js file using k6. This will send requests from 100k virtual users over a minute. The RPS (requests per second) differs based on the CPU cores available. 
+```
+make load-test
+```
+This API has been tested on 2 machines:
 
 ```
 4 Cores: 457,101 requests made | 6528.231 RPS
